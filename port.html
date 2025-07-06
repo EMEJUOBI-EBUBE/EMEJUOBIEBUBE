@@ -1,0 +1,309 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
+  <title>EREX-TECHNOLOGIES | Ebube's Portfolio</title>
+  <style>
+    ::selection{
+      color: #00b4d8;
+      box-shadow:
+        inset 0 0 60px whitesmoke,
+        inset 20px 0 80px #f0f,
+        inset -20px 0 80px #0ff,
+        inset 20px 0 300px #f0f,
+        inset -20px 0 300px #0ff,
+        0 0 50px #fff,
+        -10px 0 80px #f0f,
+        10px 0 80px #0ff;
+    }
+    body {
+      margin: 0;
+      background: #0d1b2a;
+      color: #fff;
+      font-family: Arial, sans-serif;
+      text-align: center;
+    }
+    #home{
+        display: flex;
+        flex-direction: row;
+        align-items: center;
+        justify-content: space-evenly;
+    }
+
+    nav {
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      padding: 1rem 2rem;
+      background: #1b263b;
+    }
+
+    nav h1 {
+      font-size: 1.5rem;
+      color: #00b4d8;
+      margin: 0.5rem 0;
+      box-shadow:
+        inset 0 0 60px whitesmoke,
+        inset 20px 0 80px #f0f,
+        inset -20px 0 80px #0ff,
+        inset 20px 0 300px #f0f,
+        inset -20px 0 300px #0ff,
+        0 0 50px #fff,
+        -10px 0 80px #f0f,
+        10px 0 80px #0ff;
+    }
+
+    nav ul {
+      list-style: none;
+      display: flex;
+      justify-content: center;
+      padding: 0;
+      margin: 0;
+      flex-wrap: wrap;
+    }
+
+    nav ul li {
+      margin: 0 1rem;
+    }
+
+    nav ul li a {
+      text-decoration: none;
+      color: #fff;
+      transition: color 0.3s;
+    }
+
+    nav ul li a:hover {
+      color: #00b4d8;
+    }
+
+    section {
+      padding: 4rem 2rem;
+      max-width: 900px;
+      margin: auto;
+    }
+
+    h2 span{
+      color: #a4f9ff;
+    }
+    .card {
+      background: transparent;
+      height: fit-content;
+      width: fit-content;
+      border-radius: 10px;
+      transition: transform 0.3s, box-shadow 0.3s;
+      box-shadow:
+        inset 0 0 5px whitesmoke,
+        inset 2px 0 5px #f0f,
+        inset -2px 0 5px #0ff,
+        inset 2px 0 3px #f0f,
+        inset -2px 0 3px #0ff,
+        0 0 3px #fff,
+        -2px 0 5px #f0f,
+        2px 0 5px #0ff;
+      cursor: pointer;
+    }
+    .card:hover {
+      transform: translateY(-5px);
+      box-shadow:
+        inset 0 0 6px whitesmoke,
+        inset 3px 0 6px #f0f,
+        inset -3px 0 6px #0ff,
+        inset 3px 0 4px #f0f,
+        inset -3px 0 4px #0ff,
+        0 0 4px #fff,
+        -3px 0 6px #f0f,
+        3px 0 6px #0ff;
+    }
+    .margin{
+      margin-top: 2rem;
+    }
+    #about{
+      display: flex;
+      justify-content: space-evenly;
+      flex-direction: row;
+      align-items: center;
+    }
+    .image-container {
+      margin-top: 2rem;
+      border-radius: 50%;
+      overflow: hidden;
+      width: 200px;
+      height: 200px;
+      transition: transform 0.5s;
+      margin-left: auto;
+      margin-right: auto;
+      box-shadow:
+        inset 0 0 60px whitesmoke,
+        inset 20px 0 80px #f0f,
+        inset -20px 0 80px #0ff,
+        inset 20px 0 300px #f0f,
+        inset -20px 0 300px #0ff,
+        0 0 50px #fff,
+        -10px 0 80px #f0f,
+        10px 0 80px #0ff;
+    }
+
+    .image-container img {
+      width: 100%;
+      height: auto;
+    }
+
+    .image-container:hover {
+      transform: scale(1.1) rotate(5deg);
+    }
+
+    .skill-bar {
+      background: #1b263b;
+      border-radius: 20px;
+      margin: 1rem auto;
+      max-width: 600px;
+    }
+
+    .skill-bar-fill {
+      background: #00b4d8;
+      height: 20px;
+      border-radius: 20px;
+      width: 0;
+      transition: width 1s;
+      box-shadow:
+        inset 0 0 60px whitesmoke,
+        inset 20px 0 80px #f0f,
+        inset -20px 0 80px #0ff,
+        inset 20px 0 300px #f0f,
+        inset -20px 0 300px #0ff,
+        0 0 50px #fff,
+        -10px 0 80px #f0f,
+        10px 0 80px #0ff;
+    }
+
+    #typewriter {
+      border-right: .15em solid #00b4d8;
+      white-space: nowrap;
+      overflow: hidden;
+      display: inline-block;
+    }
+    @media(max-width : 426px){
+        #home{
+            flex-direction: column-reverse;
+        }
+        #about{
+          flex-direction: column;
+          padding: 2rem;
+          gap: 2rem;
+        }
+    }
+  </style>
+</head>
+<body>
+  <header>
+    <nav>
+      <h1>EBUBE EMEJUOBI</h1>
+      <ul>
+        <li><a href="#home">Home</a></li>
+        <li><a href="#about">About</a></li>
+        <li><a href="#skills">Skills</a></li>
+        <li><a href="#contact">Contact</a></li>
+        <li><a href="#donate">Donate</a></li>
+        <li><a href="./books.html">Books</a></li>
+      </ul>
+    </nav>
+  </header>
+
+  <section id="home" >
+    <section >
+        <h2>Hello, I'm <span> EMEJUOBI EBUBE</span></h2>
+    <p id="typewriter"></p>
+    </section>
+    
+    <div class="image-container">
+      <img src="./IMG-20250622-WA0014.jpg" alt="Ebube" />
+    </div>
+  </section>
+
+  <section id="about">
+    <div class="image-container">
+      <img src="./IMG-20250622-WA0016.jpg" alt="Ebube" />
+    </div>
+    <div class="card">
+      <h2>About <span> Me</span></h2>
+    <p>My name is EMEJUOBI EBUBE. <br> I hail from Nigeria and was born in 2009. <br> I am currently in SS2 class <br> and I focus on anything relating to tech. <br> I am growing a tech company named EREX-TECHNOLOGIES. <br> I plan on studying mechatronics in university <br> and live in Port Harcourt.</p>
+  </div>
+    
+  </section>
+
+  <section id="skills">
+    <h2>My <span>Skills</span> </h2>
+    <div>Arduino (68%)<div class="skill-bar"><div class="skill-bar-fill" style="width:68%"></div></div></div>
+    <div>HTML (98%)<div class="skill-bar"><div class="skill-bar-fill" style="width:98%"></div></div></div>
+    <div>CSS (89%)<div class="skill-bar"><div class="skill-bar-fill" style="width:89%"></div></div></div>
+    <div>JavaScript (95%)<div class="skill-bar"><div class="skill-bar-fill" style="width:95%"></div></div></div>
+    <div>Node.js (78%)<div class="skill-bar"><div class="skill-bar-fill" style="width:78%"></div></div></div>
+    <div>Express (68%)<div class="skill-bar"><div class="skill-bar-fill" style="width:68%"></div></div></div>
+    <div>MongoDB (59%)<div class="skill-bar"><div class="skill-bar-fill" style="width:59%"></div></div></div>
+    <div>Graphic Designing (79%)<div class="skill-bar"><div class="skill-bar-fill" style="width:79%"></div></div></div>
+    <div>Video Editing (86%)<div class="skill-bar"><div class="skill-bar-fill" style="width:86%"></div></div></div>
+    <div>Cinematography (48%)<div class="skill-bar"><div class="skill-bar-fill" style="width:48%"></div></div></div>
+    <div>Math (98%)<div class="skill-bar"><div class="skill-bar-fill" style="width:98%"></div></div></div>
+  </section>
+
+  <section id="contact" class="card">
+    <h2>Contact <span> Me</span></h2>
+    <p>Phone/WhatsApp: 08126588150</p>
+    <p>Email: emejuobiebube@gmail.com</p>
+  </section>
+
+  <section id="donate" class="card margin">
+    <h2>Support <span>Me</span></h2>
+    <p>If you want to donate in Naira:</p>
+    <p>BANK NAME: FIDELITY</p>
+    <p>ACCOUNT NAME: EMEJUOBI CALEB AKACHUKWU</p>
+    <p>ACCOUNT NUMBER: 6152254781</p>
+    <p>If you want to donate in Dollars:</p>
+    <p>PAYPAL EMAIL: goemejuobi@gmail.com</p>
+  </section>
+
+  <script>
+    const phrases = [
+      "Aspiring Mechatronics Engineer ",
+      "& Tech Enthusiast",
+      "Founder of EREX-TECHNOLOGIES",
+      "Web Developer, ",
+      "Photographer & Designer",
+      "Always learning and ",
+      "building amazing tech"
+    ];
+    let currentPhrase = 0;
+    let currentLetter = 0;
+    const typewriter = document.getElementById("typewriter");
+    function type() {
+      if (currentLetter < phrases[currentPhrase].length) {
+        typewriter.textContent += phrases[currentPhrase].charAt(currentLetter);
+        currentLetter++;
+        setTimeout(type, 100);
+      } else {
+        setTimeout(erase, 2000);
+      }
+    }
+    function erase() {
+      if (currentLetter > 0) {
+        typewriter.textContent = phrases[currentPhrase].substring(0, currentLetter - 1);
+        currentLetter--;
+        setTimeout(erase, 50);
+      } else {
+        currentPhrase = (currentPhrase + 1) % phrases.length;
+        setTimeout(type, 500);
+      }
+    }
+    type();
+
+    window.onload = () => {
+      document.querySelectorAll('.skill-bar-fill').forEach(bar => {
+        const width = bar.style.width;
+        bar.style.width = '0';
+        setTimeout(() => { bar.style.width = width; }, 200);
+      });
+    };
+  </script>
+</body>
+</html>
