@@ -1,0 +1,57 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
+  <title>Latest News | EREX-TECHNOLOGIES</title>
+  <style>
+    body {margin:0;background:#0d1b2a;color:#fff;font-family:Arial,sans-serif;text-align:center;}
+    nav {display:flex;flex-direction:column;align-items:center;padding:1rem 2rem;background:#1b263b;}
+    nav h1 {font-size:1.5rem;color:#00b4d8;margin:0.5rem 0;}
+    nav ul {list-style:none;display:flex;justify-content:center;flex-wrap:wrap;padding:0;margin:0;}
+    nav ul li {margin:0 1rem;}
+    nav ul li a {text-decoration:none;color:#fff;transition:color 0.3s;}
+    nav ul li a:hover {color:#00b4d8;}
+    h2 {margin-top:2rem;color:#00b4d8;}
+    .news-container {display:grid;grid-template-columns:repeat(auto-fit,minmax(280px,1fr));gap:1.5rem;padding:2rem;max-width:1200px;margin:auto;}
+    .news-card {background:#1b263b;border-radius:15px;padding:1rem;box-shadow:inset 0 0 40px whitesmoke,inset 10px 0 60px #f0f,inset -10px 0 60px #0ff,inset 10px 0 200px #f0f,inset -10px 0 200px #0ff,0 0 15px #fff,-5px 0 20px #f0f,5px 0 20px #0ff;transition:transform 0.3s;text-align:left;}
+    .news-card:hover {transform:scale(1.05);}
+    .news-image {width:100%;height:auto;border-radius:10px;margin-bottom:1rem;}
+    .news-info {margin-bottom:1rem;line-height:1.4rem;}
+    .news-info h3 {margin:0 0 0.5rem 0;}
+    .join-button {background:#00b4d8;border:none;color:#fff;padding:0.6rem 1.2rem;border-radius:5px;cursor:pointer;transition:background 0.3s;text-decoration:none;display:inline-block;}
+    .join-button:hover {background:#0096c7;}
+    @media(max-width:600px){nav ul li {margin:0 0.5rem;}}
+  </style>
+</head>
+<body>
+  <header>
+    <nav>
+      <h1>EREX-TECHNOLOGIES</h1>
+      <ul>
+        <li><a href="index.html">Home</a></li>
+        <li><a href="news.html">News</a></li>
+      </ul>
+    </nav>
+  </header>
+  <h2>Latest News & Updates</h2>
+  <div class="news-container">
+    <div class="news-card">
+      <img src="./download.jfif" alt="News Thumbnail" class="news-image" />
+      <div class="news-info">
+        <h3>Exciting Update #1</h3>
+        <p>We just launched our new free books section! Get all 15 books for free now and grow with us.</p>
+      </div>
+      <a href="./books.html" target="_blank" class="join-button">Join Now</a>
+    </div>
+    <div class="news-card">
+      <img src="./Black & Yellow Modern Exclusive Furniture Poster_20250706_120024_0000.png" alt="News Thumbnail" class="news-image" />
+      <div class="news-info">
+        <h3>Upcoming Tech Program</h3>
+        <p>Join our upcoming tech program for young innovators. slots available – don’t miss out!</p>
+      </div>
+      <a href="https://chat.whatsapp.com/LU78oD34IoKBvp1mkRW5YN" target="_blank" class="join-button">Join Now</a>
+    </div>
+  </div>
+</body>
+</html>
