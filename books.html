@@ -1,0 +1,182 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
+  <title>My Free Books | EREX-TECHNOLOGIES</title>
+  <style>
+    body {
+      margin: 0;
+      background: #0d1b2a;
+      color: #fff;
+      font-family: Arial, sans-serif;
+      text-align: center;
+    }
+
+    nav {
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      padding: 1rem 2rem;
+      background: #1b263b;
+    }
+
+    nav h1 {
+      font-size: 1.5rem;
+      color: #00b4d8;
+      margin: 0.5rem 0;
+    }
+
+    nav ul {
+      list-style: none;
+      display: flex;
+      justify-content: center;
+      padding: 0;
+      margin: 0;
+      flex-wrap: wrap;
+    }
+
+    nav ul li {
+      margin: 0 1rem;
+    }
+
+    nav ul li a {
+      text-decoration: none;
+      color: #fff;
+      transition: color 0.3s;
+    }
+
+    nav ul li a:hover {
+      color: #00b4d8;
+    }
+
+    h2 {
+      margin-top: 2rem;
+      color: #00b4d8;
+    }
+
+    .books-container {
+      display: grid;
+      grid-template-columns: repeat(auto-fit, minmax(250px, 1fr));
+      gap: 2rem;
+      padding: 2rem;
+      max-width: 1200px;
+      margin: auto;
+    }
+
+    .book-card {
+      background: #1b263b;
+      border-radius: 15px;
+      padding: 2rem 1rem;
+      box-shadow:
+        inset 0 0 60px whitesmoke,
+        inset 20px 0 80px #f0f,
+        inset -20px 0 80px #0ff,
+        inset 20px 0 300px #f0f,
+        inset -20px 0 300px #0ff,
+        0 0 20px #fff,
+        -10px 0 40px #f0f,
+        10px 0 40px #0ff;
+      transition: transform 0.3s;
+    }
+
+    .book-card:hover {
+      transform: scale(1.08);
+    }
+
+    .book-title {
+      font-size: 1.4rem;
+      margin-bottom: 0.8rem;
+    }
+
+    .book-price {
+      font-size: 1rem;
+      margin-bottom: 1rem;
+    }
+
+    .download-button {
+      background: #00b4d8;
+      border: none;
+      color: #fff;
+      padding: 0.7rem 1.2rem;
+      border-radius: 5px;
+      cursor: pointer;
+      transition: background 0.3s;
+      font-size: 1rem;
+      text-decoration: none;
+      display: inline-block;
+    }
+
+    .download-button:hover {
+      background: #0096c7;
+    }
+  </style>
+</head>
+<body>
+  <header>
+    <nav>
+      <h1>EREX-TECHNOLOGIES</h1>
+      <ul>
+        <li><a href="./port.html">Home</a></li>
+        <li><a href="#">My Free Books</a></li>
+      </ul>
+    </nav>
+  </header>
+
+  <h2>My Free Books</h2>
+  <div class="books-container">
+    <!-- 21 Free Book Cards -->
+    <!-- Replace YOUR_DOWNLOAD_LINK_X with your real download link for each book -->
+
+    <!-- Example Book Cards -->
+    <!-- Book 1 -->
+    <div class="book-card">
+      <div class="book-title">HTML</div>
+      <div class="book-price">Free Download</div>
+      <a href="./html_basics_guide.pdf" class="download-button" download>Download</a>
+    </div>
+
+    <!-- Book 2 -->
+    <div class="book-card">
+      <div class="book-title">CSS</div>
+      <div class="book-price">Free Download</div>
+      <a href="./css_basics_guide.pdf" class="download-button" download>Download</a>
+    </div>
+    <div class="book-card">
+      <div class="book-title">JavaScript</div>
+      <div class="book-price">Free Download</div>
+      <a href="./javascript_basics_guide.pdf" class="download-button" download>Download</a>
+    </div>
+    <div class="book-card">
+      <div class="book-title">Web-Development</div>
+      <div class="book-price">Free Download</div>
+      <a href="./web_development_basics_series.pdf" class="download-button" download>Download</a>
+    </div>
+    <div class="book-card">
+      <div class="book-title">backend basics</div>
+      <div class="book-price">Free Download</div>
+      <a href="./📗 Backend Web Development BASICS.pdf" class="download-button" download>Download</a>
+    </div>
+    <div class="book-card">
+      <div class="book-title">Advanced JavaScript</div>
+      <div class="book-price">Free Download</div>
+      <a href="./🚀 Advanced JavaScript.pdf" class="download-button" download>Download</a>
+    </div>
+    <div class="book-card">
+      <div class="book-title">Advanced backend</div>
+      <div class="book-price">Free Download</div>
+      <a href="./🚀 Advanced Node.pdf" class="download-button" download>Download</a>
+    </div>
+    <div class="book-card">
+      <div class="book-title">Cinematography</div>
+      <div class="book-price">Free Download</div>
+      <a href="./🎥 Cinematography Basics.pdf" class="download-button" download>Download</a>
+    </div>
+    <div class="book-card">
+      <div class="book-title">Advice</div>
+      <div class="book-price">Free Download</div>
+      <a href="./🌟 Here.pdf" class="download-button" download>Download</a>
+    </div>
+  </div>
+</body>
+</html>
