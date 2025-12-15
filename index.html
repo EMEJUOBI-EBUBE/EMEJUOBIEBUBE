@@ -34,11 +34,37 @@
     nav {
       display: flex;
       flex-direction: column;
+      width: 100%;
+      height: 100%;
       align-items: center;
       padding: 1rem 2rem;
       background: #1b263b;
     }
-
+  
+    #tog{
+      position: fixed;
+      z-index: 200000;
+      top: 0;
+      right: 0;
+      margin: 1rem;
+      font-size: 2rem;
+      font-weight: 900;
+      border: 0.5px solid grey;
+      border-radius: 100%;
+      width: 2.5rem;
+      height: 2.5rem;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      cursor: pointer;
+      transform: rotate(0deg);
+      transition-duration: 1s;
+    }
+    #tog:hover{
+      filter: blur(15%);
+      transform: rotate(-45deg);
+      transition-duration: 1s;
+    }
     nav h1 {
       font-size: 1.5rem;
       color: #00b4d8;
@@ -53,18 +79,28 @@
         -10px 0 80px #f0f,
         10px 0 80px #0ff;
     }
+    header{
+      position: fixed;
+      width: 15rem;
+      height: 100vh;
+      transform: translateX(0rem);
+      transition: linear;
+      transition-duration: 1s;
+    }
 
     nav ul {
       list-style: none;
       display: flex;
+      flex-direction: column;
       justify-content: center;
-      padding: 0;
+      padding: 1rem;
       margin: 0;
       flex-wrap: wrap;
     }
-
+  
     nav ul li {
       margin: 0 1rem;
+      padding: 1rem;
     }
 
     nav ul li a {
@@ -85,6 +121,11 @@
 
     h2 span{
       color: #a4f9ff;
+    }
+    .toggleCard{
+      transform: translateX(-20rem);
+      transition: linear;
+      transition-duration: 1s;
     }
     .card {
       background: transparent;
@@ -210,7 +251,7 @@
       </ul>
     </nav>
   </header>
-
+<span id="tog" onclick="toggle()">=</span>
   <section id="home" >
     <section >
         <h2>Hello, I'm <span> EMEJUOBI EBUBE</span></h2>
@@ -228,7 +269,7 @@
     </div>
     <div class="card">
       <h2>About <span> Me</span></h2>
-    <p>My name is EMEJUOBI EBUBE. <br> I hail from Nigeria and was born in 2009. <br> I am currently in SSS3 class <br> and I focus on anything relating to tech. <br> I am growing a tech company named EREX-TECHNOLOGIES. <br> I plan on studying mechatronics in university <br> and live in Port Harcourt.</p>
+    <p>My name is EMEJUOBI EBUBE. <br> I hail from Nigeria and was born in 2009. <br> I am currently in SS2 class <br> and I focus on anything relating to tech. <br> I am growing a tech company named EREX-TECHNOLOGIES. <br> I plan on studying mechatronics in university <br> and live in Port Harcourt.</p>
   </div>
     
   </section>
@@ -252,27 +293,30 @@
     <h2>Contact <span> Me</span></h2>
     <p>Phone/WhatsApp: 08126588150</p>
     <p>Email: emejuobiebube@gmail.com</p>
-    <p>link: <a href="https://chat.whatsapp.com/LU78oD34IoKBvp1mkRW5YN">Jion</a> </p>
   </section>
 
   <section id="donate" class="card margin">
     <h2>Support <span>Me</span></h2>
     <p>If you want to donate in Naira:</p>
     <p>BANK NAME: FIDELITY</p>
-    <p>ACCOUNT NAME: EMEJUOBI CALEB AKACHUKWU</p>
-    <p>ACCOUNT NUMBER: 6152254781</p>
+    <p>ACCOUNT NAME: EBUBECHUKWU EMEJUOBI</p>
+    <p>ACCOUNT NUMBER: 6152254736</p>
     <p>If you want to donate in Dollars:</p>
     <p>PAYPAL EMAIL: goemejuobi@gmail.com</p>
   </section>
 
   <script>
+    function toggle(){
+      const header = document.querySelector("header");
+      header.classList.toggle("toggleCard");
+    }
     const phrases = [
-      "Aspiring Mechatronics Engineer ",
+      "Aspiring Mechatronics Engineer",
       "& Tech Enthusiast",
       "Founder of EREX-TECHNOLOGIES",
-      "Web Developer, ",
+      "Web Developer,",
       "Photographer & Designer",
-      "Always learning and ",
+      "Always learning and",
       "building amazing tech"
     ];
     let currentPhrase = 0;
@@ -309,4 +353,3 @@
   </script>
 </body>
 </html>
-
