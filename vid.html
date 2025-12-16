@@ -7,7 +7,7 @@
 <style>
 *{margin:0;padding:0;box-sizing:border-box}
 body{background:#000;height:100vh;overflow:hidden;font-family:Arial,sans-serif;display:flex;justify-content:center;align-items:center}
-.app{width:100%;height:100%;max-width:480px;position:relative;touch-action:none}
+.app{width:100%;height:100%;max-width:480px;position:relative;touch-action:none;padding-bottom:90px}
 video{width:100%;height:100%;object-fit:cover}
 .frame{position:absolute;border:2px dashed rgba(255,255,255,.6);top:50%;left:50%;transform:translate(-50%,-50%);pointer-events:none}
 .grid{position:absolute;inset:0;pointer-events:none;display:none}
@@ -20,7 +20,7 @@ video{width:100%;height:100%;object-fit:cover}
 .focus-ring{position:absolute;width:80px;height:80px;border:2px solid #ffd166;border-radius:50%;pointer-events:none;opacity:0;animation:focus 1s ease}
 @keyframes focus{0%{transform:scale(1.3);opacity:1}100%{transform:scale(1);opacity:0}}
 .top{position:absolute;top:10px;left:50%;transform:translateX(-50%);display:flex;gap:6px;background:rgba(0,0,0,.6);padding:6px 10px;border-radius:20px;z-index:5}
-.bottom{position:absolute;bottom:calc(10px + env(safe-area-inset-bottom));left:50%;transform:translateX(-50%);display:flex;flex-direction:column;align-items:center;gap:8px;z-index:5}
+.bottom{position:fixed;left:50%;transform:translateX(-50%);bottom:calc(16px + env(safe-area-inset-bottom));display:flex;flex-direction:column;align-items:center;gap:8px;z-index:9999}
 .controls{display:flex;gap:14px}
 .sliders{display:flex;gap:8px;background:rgba(0,0,0,.5);padding:6px;border-radius:10px}
 button,select{background:#00b4d8;border:none;color:#fff;padding:8px;border-radius:50%;cursor:pointer}
@@ -64,146 +64,69 @@ input[type=range]{width:70px}
   </div>
 </div>
 <script>
-/* ================= SAFE & ERROR-FREE CAMERA SCRIPT ================= */
+const video=document.getElementById('video');
+const frame=document.getElementById('frame');
+const grid=document.getElementById('grid');
+const ratioSelect=document.getElementById('ratio');
+const brightness=document.getElementById('brightness');
+const contrast=document.getElementById('contrast');
+const saturation=document.getElementById('saturation');
+const zoom=document.getElementById('zoom');
+const recBtn=document.getElementById('rec');
+const stopBtn=document.getElementById('stop');
+const switchBtn=document.getElementById('switch');
+const gridBtn=document.getElementById('gridBtn');
+let stream=null, recorder=null, chunks=[], frontCamera=true;
 
-const video = document.getElementById('video');
-const frame = document.getElementById('frame');
-const grid = document.getElementById('grid');
-const ratioSelect = document.getElementById('ratio');
-const brightness = document.getElementById('brightness');
-const contrast = document.getElementById('contrast');
-const saturation = document.getElementById('saturation');
-const zoom = document.getElementById('zoom');
-const recBtn = document.getElementById('rec');
-const stopBtn = document.getElementById('stop');
-const switchBtn = document.getElementById('switch');
-const gridBtn = document.getElementById('gridBtn');
-
-let stream = null;
-let recorder = null;
-let chunks = [];
-let frontCamera = true;
-
-/* ---------- CAMERA START ---------- */
-async function startCamera() {
-  try {
-    if (stream) stream.getTracks().forEach(t => t.stop());
-
-    stream = await navigator.mediaDevices.getUserMedia({
-      video: { facingMode: frontCamera ? 'user' : 'environment' },
-      audio: true
-    });
-
-    video.srcObject = stream;
-  } catch (err) {
-    alert('Camera access failed: ' + err.message);
-  }
+async function startCamera(){
+  try{
+    if(stream)stream.getTracks().forEach(t=>t.stop());
+    stream=await navigator.mediaDevices.getUserMedia({video:{facingMode:frontCamera?'user':'environment'},audio:true});
+    video.srcObject=stream;
+  }catch(e){alert('Camera error: '+e.message);}
 }
 startCamera();
+switchBtn.onclick=()=>{frontCamera=!frontCamera; startCamera()};
 
-switchBtn.onclick = () => {
-  frontCamera = !frontCamera;
-  startCamera();
-};
-
-/* ---------- ASPECT RATIO (NO eval) ---------- */
-function updateFrame() {
-  const [wR, hR] = ratioSelect.value.split(':').map(Number);
-  const r = wR / hR;
-
-  const bounds = video.getBoundingClientRect();
-  let w, h;
-
-  if (bounds.width / bounds.height > r) {
-    h = bounds.height * 0.9;
-    w = h * r;
-  } else {
-    w = bounds.width * 0.9;
-    h = w / r;
-  }
-
-  frame.style.width = w + 'px';
-  frame.style.height = h + 'px';
+function updateFrame(){
+  const [wR,hR]=ratioSelect.value.split(':').map(Number);
+  const r=wR/hR;
+  const b=video.getBoundingClientRect();
+  let w,h;
+  if(b.width/b.height>r){h=b.height*.9; w=h*r} else{w=b.width*.9; h=w/r}
+  frame.style.width=w+'px'; frame.style.height=h+'px';
 }
-ratioSelect.onchange = updateFrame;
-window.onresize = updateFrame;
+ratioSelect.onchange=updateFrame; window.onresize=updateFrame;
 
-/* ---------- FILTERS / ZOOM ---------- */
-function updateFilters() {
-  video.style.filter = `brightness(${brightness.value}%) contrast(${contrast.value}%) saturate(${saturation.value}%)`;
-  video.style.transform = `scale(${zoom.value})`;
+function updateFilters(){
+  video.style.filter=`brightness(${brightness.value}%) contrast(${contrast.value}%) saturate(${saturation.value}%)`;
+  video.style.transform=`scale(${zoom.value})`;
 }
-[brightness, contrast, saturation, zoom].forEach(el => el.addEventListener('input', updateFilters));
+[brightness,contrast,saturation,zoom].forEach(el=>el.addEventListener('input',updateFilters));
 
-/* ---------- GRID ---------- */
-gridBtn.onclick = () => grid.style.display = grid.style.display === 'block' ? 'none' : 'block';
+gridBtn.onclick=()=>grid.style.display=grid.style.display==='block'?'none':'block';
 
-/* ---------- TAP TO FOCUS ---------- */
-video.addEventListener('click', e => {
-  const ring = document.createElement('div');
-  ring.className = 'focus-ring';
-  ring.style.left = (e.clientX - 40) + 'px';
-  ring.style.top = (e.clientY - 40) + 'px';
-  document.body.appendChild(ring);
-  setTimeout(() => ring.remove(), 1000);
+video.addEventListener('click',e=>{
+  const ring=document.createElement('div'); ring.className='focus-ring';
+  ring.style.left=(e.clientX-40)+'px'; ring.style.top=(e.clientY-40)+'px';
+  document.body.appendChild(ring); setTimeout(()=>ring.remove(),1000);
 });
 
-/* ---------- PINCH TO ZOOM ---------- */
-let startDistance = 0;
-let startZoom = 1;
-
-video.addEventListener('touchstart', e => {
-  if (e.touches.length === 2) {
-    startDistance = Math.hypot(
-      e.touches[0].pageX - e.touches[1].pageX,
-      e.touches[0].pageY - e.touches[1].pageY
-    );
-    startZoom = parseFloat(zoom.value);
-  }
-});
-
-video.addEventListener('touchmove', e => {
-  if (e.touches.length === 2) {
-    const newDist = Math.hypot(
-      e.touches[0].pageX - e.touches[1].pageX,
-      e.touches[0].pageY - e.touches[1].pageY
-    );
-    let z = startZoom * (newDist / startDistance);
-    z = Math.max(1, Math.min(3, z));
-    zoom.value = z;
-    updateFilters();
-  }
-});
-
-/* ---------- RECORD MP4 (SAFE FALLBACK) ---------- */
-recBtn.onclick = () => {
-  chunks = [];
-
-  let options = { mimeType: 'video/mp4' };
-  if (!MediaRecorder.isTypeSupported(options.mimeType)) {
-    options = { mimeType: 'video/webm' };
-  }
-
-  recorder = new MediaRecorder(stream, options);
-  recorder.ondataavailable = e => chunks.push(e.data);
-  recorder.onstop = () => {
-    const blob = new Blob(chunks, { type: recorder.mimeType });
-    const a = document.createElement('a');
-    a.href = URL.createObjectURL(blob);
-    a.download = recorder.mimeType.includes('mp4') ? 'video.mp4' : 'video.webm';
+recBtn.onclick=()=>{
+  chunks=[];
+  let options={mimeType:'video/mp4'};
+  if(!MediaRecorder.isTypeSupported(options.mimeType))options={mimeType:'video/webm'};
+  recorder=new MediaRecorder(stream,options);
+  recorder.ondataavailable=e=>chunks.push(e.data);
+  recorder.onstop=()=>{
+    const blob=new Blob(chunks,{type:recorder.mimeType});
+    const a=document.createElement('a'); a.href=URL.createObjectURL(blob);
+    a.download=recorder.mimeType.includes('mp4')?'video.mp4':'video.webm';
     a.click();
   };
-
-  recorder.start();
-  recBtn.disabled = true;
-  stopBtn.disabled = false;
+  recorder.start(); recBtn.disabled=true; stopBtn.disabled=false;
 };
-
-stopBtn.onclick = () => {
-  recorder.stop();
-  recBtn.disabled = false;
-  stopBtn.disabled = true;
-};
+stopBtn.onclick=()=>{recorder.stop(); recBtn.disabled=false; stopBtn.disabled=true};
 
 updateFrame();
 </script>
