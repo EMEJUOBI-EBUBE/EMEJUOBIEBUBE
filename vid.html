@@ -6,9 +6,9 @@
 <title>Video Camera | EREX</title>
 <style>
 *{margin:0;padding:0;box-sizing:border-box}
-body{background:#000;height:100vh;overflow:hidden;font-family:Arial,sans-serif;display:flex;justify-content:center;align-items:center}
+body{background:#000;height:100vh;overflow:hidden;font-family:Arial,sans-serif;display:flex;justify-content:center;align-items:center;padding-bottom:env(safe-area-inset-bottom,0)}
 .app{width:100%;height:100%;max-width:480px;position:relative}
-video{width:100%;height:100%;object-fit:cover}
+video{width:100%;height:100%;object-fit:cover;z-index:1}
 .frame{position:absolute;border:2px dashed rgba(255,255,255,.6);top:50%;left:50%;transform:translate(-50%,-50%);pointer-events:none}
 .grid{position:absolute;inset:0;pointer-events:none;display:none}
 .grid::before,.grid::after{content:"";position:absolute;background:rgba(255,255,255,.3)}
@@ -18,7 +18,18 @@ video{width:100%;height:100%;object-fit:cover}
 .grid span:nth-child(1){top:33.33%}
 .grid span:nth-child(2){top:66.66%}
 .top{position:absolute;top:10px;left:50%;transform:translateX(-50%);display:flex;gap:6px;background:rgba(0,0,0,.6);padding:6px 10px;border-radius:20px}
-.bottom{position:absolute;bottom:10px;width:100%;display:flex;flex-direction:column;align-items:center;gap:8px}
+.bottom{
+  position:fixed;
+  bottom:env(safe-area-inset-bottom, 0);
+  left:0;
+  width:100%;
+  display:flex;
+  flex-direction:column;
+  align-items:center;
+  gap:8px;
+  padding-bottom:12px;
+  z-index:10;
+}
 .controls{display:flex;gap:10px}
 .sliders{display:flex;gap:8px;background:rgba(0,0,0,.5);padding:6px;border-radius:10px}
 button,select{background:#00b4d8;border:none;color:#fff;padding:8px;border-radius:50%;cursor:pointer;font-size:.9rem}
@@ -50,9 +61,10 @@ input[type=range]{width:70px}
 
   <div class="bottom">
     <div class="sliders">
-      <input type="range" id="brightness" min="50" max="150" value="100">
-      <input type="range" id="contrast" min="50" max="150" value="100">
-      <input type="range" id="saturation" min="0" max="200" value="100">
+      <input type="range" id="zoom" min="1" max="3" step="0.01" value="1" title="Zoom">
+      <input type="range" id="brightness" min="50" max="150" value="100" title="Brightness">
+      <input type="range" id="contrast" min="50" max="150" value="100" title="Contrast">
+      <input type="range" id="saturation" min="0" max="200" value="100" title="Saturation">
     </div>
     <div class="controls">
       <button id="rec">⏺</button>
@@ -67,6 +79,7 @@ const grid=document.getElementById('grid');
 const ratio=document.getElementById('ratio');
 const brightness=document.getElementById('brightness');
 const contrast=document.getElementById('contrast');
+const zoom=document.getElementById('zoom');
 const saturation=document.getElementById('saturation');
 const recBtn=document.getElementById('rec');
 const stopBtn=document.getElementById('stop');
@@ -78,7 +91,9 @@ startCam();
 switchBtn.onclick=()=>{front=!front;startCam()};
 function updateFrame(){const r=eval(ratio.value);const b=video.getBoundingClientRect();let w,h;if(b.width/b.height>r){h=b.height*.9;w=h*r}else{w=b.width*.9;h=w/r}frame.style.width=w+'px';frame.style.height=h+'px'}
 ratio.onchange=updateFrame;window.onresize=updateFrame;screen.orientation?.addEventListener('change',updateFrame);
-function updateFilter(){video.style.filter=`brightness(${brightness.value}%) contrast(${contrast.value}%) saturate(${saturation.value}%)`}
+function updateFilter(){
+  video.style.filter=`brightness(${brightness.value}%) contrast(${contrast.value}%) saturate(${saturation.value}%)`;
+  video.style.tra%) contrast(${contrast.value}%) saturate(${saturation.value}%)`}
 [brightness,contrast,saturation].forEach(i=>i.oninput=updateFilter);
 gridBtn.onclick=()=>grid.style.display=grid.style.display==='none'?'block':'none';
 recBtn.onclick=()=>{chunks=[];const mime=MediaRecorder.isTypeSupported('video/mp4')?'video/mp4':'video/webm';recorder=new MediaRecorder(stream,{mimeType:mime});recorder.ondataavailable=e=>chunks.push(e.data);recorder.onstop=()=>{const b=new Blob(chunks,{type:mime});const a=document.createElement('a');a.href=URL.createObjectURL(b);a.download=mime==='video/mp4'?'video.mp4':'video.webm';a.click()};recorder.start();recBtn.disabled=true;stopBtn.disabled=false};
