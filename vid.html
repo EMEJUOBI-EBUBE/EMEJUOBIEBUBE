@@ -2,141 +2,88 @@
 <html lang="en">
 <head>
 <meta charset="UTF-8">
-<meta name="viewport" content="width=device-width, initial-scale=1.0">
-<title>Video Enhancer | EREX-TECHNOLOGIES</title>
+<meta name="viewport" content="width=device-width,initial-scale=1.0">
+<title>Video Camera | EREX</title>
 <style>
-*{margin:0;padding:0;box-sizing:border-box;}
-body{background:#0d1b2a;color:#fff;font-family:Arial,sans-serif;overflow:hidden;display:flex;flex-direction:column;justify-content:center;align-items:center;height:100vh;}
-
-.camera-container{position:relative;width:100%;max-width:640px;height:80vh;background:#000;border-radius:15px;overflow:hidden;box-shadow:0 0 20px #00b4d8;}
-
-video{width:100%;height:100%;object-fit:cover;transform-origin:center center;}
-
-.aspect-overlay{position:absolute;top:50%;left:50%;transform:translate(-50%,-50%);border:2px dashed rgba(255,255,255,0.5);pointer-events:none;}
-
-.controls{position:absolute;bottom:10px;left:50%;transform:translateX(-50%);display:flex;gap:10px;align-items:center;justify-content:center;background:rgba(0,0,0,0.3);padding:10px;border-radius:10px;flex-wrap:wrap;}
-
-.controls button{background:#00b4d8;border:none;padding:10px 15px;border-radius:50%;cursor:pointer;font-weight:bold;transition:0.3s;}
-.controls button:hover{background:#0096c7;}
-.controls label{display:flex;flex-direction:column;font-size:0.75rem;text-align:center;color:#fff;}
-.controls input, .controls select{margin-top:3px;}
+*{margin:0;padding:0;box-sizing:border-box}
+body{background:#000;height:100vh;overflow:hidden;font-family:Arial,sans-serif;display:flex;justify-content:center;align-items:center}
+.app{width:100%;height:100%;max-width:480px;position:relative}
+video{width:100%;height:100%;object-fit:cover}
+.frame{position:absolute;border:2px dashed rgba(255,255,255,.6);top:50%;left:50%;transform:translate(-50%,-50%);pointer-events:none}
+.grid{position:absolute;inset:0;pointer-events:none;display:none}
+.grid::before,.grid::after{content:"";position:absolute;background:rgba(255,255,255,.3)}
+.grid::before{left:33.33%;top:0;width:2px;height:100%}
+.grid::after{left:66.66%;top:0;width:2px;height:100%}
+.grid span{position:absolute;left:0;width:100%;height:2px;background:rgba(255,255,255,.3)}
+.grid span:nth-child(1){top:33.33%}
+.grid span:nth-child(2){top:66.66%}
+.top{position:absolute;top:10px;left:50%;transform:translateX(-50%);display:flex;gap:6px;background:rgba(0,0,0,.6);padding:6px 10px;border-radius:20px}
+.bottom{position:absolute;bottom:10px;width:100%;display:flex;flex-direction:column;align-items:center;gap:8px}
+.controls{display:flex;gap:10px}
+.sliders{display:flex;gap:8px;background:rgba(0,0,0,.5);padding:6px;border-radius:10px}
+button,select{background:#00b4d8;border:none;color:#fff;padding:8px;border-radius:50%;cursor:pointer;font-size:.9rem}
+select{border-radius:10px}
+input[type=range]{width:70px}
 </style>
 </head>
 <body>
+<div class="app">
+  <video id="video" autoplay muted playsinline></video>
+  <div class="frame" id="frame"></div>
+  <div class="grid" id="grid"><span></span><span></span></div>
 
-<div class="camera-container">
-  <video id="video" autoplay playsinline muted></video>
-  <div class="aspect-overlay" id="aspectOverlay"></div>
+  <div class="top">
+    <select id="ratio">
+      <optgroup label="Portrait">
+        <option value="9/16">9:16</option>
+        <option value="3/4">3:4</option>
+      </optgroup>
+      <optgroup label="Landscape">
+        <option value="16/9" selected>16:9</option>
+        <option value="4/3">4:3</option>
+      </optgroup>
+      <option value="1">1:1</option>
+    </select>
+    <button id="switch">🔄</button>
+    <button id="gridBtn">#</button>
+  </div>
 
-  <div class="controls">
-    <button id="toggleCamera">🔄</button>
-    <button id="start">⏺</button>
-    <button id="stop" disabled>⏹</button>
-    <label>Zoom<input type="range" id="zoom" min="1" max="3" step="0.01" value="1"></label>
-    <label>Brightness<input type="range" id="brightness" min="50" max="150" value="100"></label>
-    <label>Contrast<input type="range" id="contrast" min="50" max="150" value="100"></label>
-    <label>Saturation<input type="range" id="saturation" min="0" max="200" value="100"></label>
-    <label>Aspect<select id="aspect"><option value="1">1:1</option><option value="4/3">4:3</option><option value="16/9" selected>16:9</option></select></label>
+  <div class="bottom">
+    <div class="sliders">
+      <input type="range" id="brightness" min="50" max="150" value="100">
+      <input type="range" id="contrast" min="50" max="150" value="100">
+      <input type="range" id="saturation" min="0" max="200" value="100">
+    </div>
+    <div class="controls">
+      <button id="rec">⏺</button>
+      <button id="stop" disabled>⏹</button>
+    </div>
   </div>
 </div>
-
-<canvas id="canvas" style="display:none;"></canvas>
-
 <script>
 const video=document.getElementById('video');
-const canvas=document.getElementById('canvas');
+const frame=document.getElementById('frame');
+const grid=document.getElementById('grid');
+const ratio=document.getElementById('ratio');
 const brightness=document.getElementById('brightness');
 const contrast=document.getElementById('contrast');
 const saturation=document.getElementById('saturation');
-const zoom=document.getElementById('zoom');
-const aspect=document.getElementById('aspect');
-const toggleCamera=document.getElementById('toggleCamera');
-const startBtn=document.getElementById('start');
+const recBtn=document.getElementById('rec');
 const stopBtn=document.getElementById('stop');
-const aspectOverlay=document.getElementById('aspectOverlay');
-
-let currentStream,useFrontCamera=true,mediaRecorder,recordedChunks=[],recording=false;
-
-// Start camera
-async function startCamera(){
-  if(currentStream)currentStream.getTracks().forEach(t=>t.stop());
-  const constraints={video:{facingMode:useFrontCamera?'user':'environment'},audio:true};
-  try{currentStream=await navigator.mediaDevices.getUserMedia(constraints);video.srcObject=currentStream;}catch(err){alert('Camera access denied: '+err);}
-}
-
-// Update filters
-function updateFilters(){
-  video.style.filter=`brightness(${brightness.value}%) contrast(${contrast.value}%) saturate(${saturation.value}%)`;
-  video.style.transform=`scale(${zoom.value})`;
-}
-[brightness,contrast,saturation,zoom].forEach(el=>el.addEventListener('input',updateFilters));
-
-// Toggle camera
-toggleCamera.addEventListener('click',()=>{useFrontCamera=!useFrontCamera;startCamera();});
-
-// Start recording
-startBtn.addEventListener('click',()=>{
-  recordedChunks=[];
-  const stream=canvas.captureStream(30); // 30fps
-  mediaRecorder=new MediaRecorder(stream,{mimeType:'video/webm'}); 
-  mediaRecorder.ondataavailable=e=>{if(e.data.size>0)recordedChunks.push(e.data)};
-  mediaRecorder.onstop=()=>{
-    const blob=new Blob(recordedChunks,{type:'video/webm'});
-    const url=URL.createObjectURL(blob);
-    const a=document.createElement('a');
-    a.href=url;
-    a.download='video.webm';
-    a.click();
-  };
-  mediaRecorder.start();
-  recording=true;
-  startBtn.disabled=true;
-  stopBtn.disabled=false;
-  drawCanvasLoop();
-});
-
-// Stop recording
-stopBtn.addEventListener('click',()=>{
-  mediaRecorder.stop();
-  recording=false;
-  startBtn.disabled=false;
-  stopBtn.disabled=true;
-});
-
-// Draw video with filters and aspect ratio
-function drawCanvasLoop(){
-  if(!recording) return;
-  const ar=eval(aspect.value);
-  const vw=video.videoWidth;
-  const vh=video.videoHeight;
-  canvas.width=vw;
-  canvas.height=vw/ar;
-  const ctx=canvas.getContext('2d');
-  ctx.filter=video.style.filter;
-
-  let sx=0,sy=0,sw=vw,sh=vh;
-  if(vw/vh>ar){sw=vh*ar;sx=(vw-sw)/2;}else{sh=vw/ar;sy=(vh-sh)/2;}
-  ctx.drawImage(video,sx,sy,sw,sh,0,0,canvas.width,canvas.height);
-
-  requestAnimationFrame(drawCanvasLoop);
-}
-
-// Aspect overlay
-function updateAspectOverlay(){
-  const container=document.querySelector('.camera-container');
-  const rect=container.getBoundingClientRect();
-  const ar=eval(aspect.value);
-  let overlayWidth,overlayHeight;
-  if(rect.width/rect.height>ar){overlayHeight=rect.height*0.9;overlayWidth=overlayHeight*ar;}
-  else{overlayWidth=rect.width*0.9;overlayHeight=overlayWidth/ar;}
-  aspectOverlay.style.width=overlayWidth+'px';
-  aspectOverlay.style.height=overlayHeight+'px';
-}
-aspect.addEventListener('change',updateAspectOverlay);
-window.addEventListener('resize',updateAspectOverlay);
-
-startCamera();
-updateAspectOverlay();
+const switchBtn=document.getElementById('switch');
+const gridBtn=document.getElementById('gridBtn');
+let stream,recorder,chunks=[],front=true;
+async function startCam(){if(stream)stream.getTracks().forEach(t=>t.stop());stream=await navigator.mediaDevices.getUserMedia({video:{facingMode:front?'user':'environment'},audio:true});video.srcObject=stream}
+startCam();
+switchBtn.onclick=()=>{front=!front;startCam()};
+function updateFrame(){const r=eval(ratio.value);const b=video.getBoundingClientRect();let w,h;if(b.width/b.height>r){h=b.height*.9;w=h*r}else{w=b.width*.9;h=w/r}frame.style.width=w+'px';frame.style.height=h+'px'}
+ratio.onchange=updateFrame;window.onresize=updateFrame;screen.orientation?.addEventListener('change',updateFrame);
+function updateFilter(){video.style.filter=`brightness(${brightness.value}%) contrast(${contrast.value}%) saturate(${saturation.value}%)`}
+[brightness,contrast,saturation].forEach(i=>i.oninput=updateFilter);
+gridBtn.onclick=()=>grid.style.display=grid.style.display==='none'?'block':'none';
+recBtn.onclick=()=>{chunks=[];const mime=MediaRecorder.isTypeSupported('video/mp4')?'video/mp4':'video/webm';recorder=new MediaRecorder(stream,{mimeType:mime});recorder.ondataavailable=e=>chunks.push(e.data);recorder.onstop=()=>{const b=new Blob(chunks,{type:mime});const a=document.createElement('a');a.href=URL.createObjectURL(b);a.download=mime==='video/mp4'?'video.mp4':'video.webm';a.click()};recorder.start();recBtn.disabled=true;stopBtn.disabled=false};
+stopBtn.onclick=()=>{recorder.stop();recBtn.disabled=false;stopBtn.disabled=true};
+updateFrame();
 </script>
 </body>
 </html>
