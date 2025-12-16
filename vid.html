@@ -93,8 +93,9 @@ function updateFrame(){const r=eval(ratio.value);const b=video.getBoundingClient
 ratio.onchange=updateFrame;window.onresize=updateFrame;screen.orientation?.addEventListener('change',updateFrame);
 function updateFilter(){
   video.style.filter=`brightness(${brightness.value}%) contrast(${contrast.value}%) saturate(${saturation.value}%)`;
-  video.style.tra%) contrast(${contrast.value}%) saturate(${saturation.value}%)`}
-[brightness,contrast,saturation].forEach(i=>i.oninput=updateFilter);
+  video.style.transform=`scale(${zoom.value})`;
+}%) contrast(${contrast.value}%) saturate(${saturation.value}%)`}
+[zoom,brightness,contrast,saturation].forEach(i=>i.oninput=updateFilter);
 gridBtn.onclick=()=>grid.style.display=grid.style.display==='none'?'block':'none';
 recBtn.onclick=()=>{chunks=[];const mime=MediaRecorder.isTypeSupported('video/mp4')?'video/mp4':'video/webm';recorder=new MediaRecorder(stream,{mimeType:mime});recorder.ondataavailable=e=>chunks.push(e.data);recorder.onstop=()=>{const b=new Blob(chunks,{type:mime});const a=document.createElement('a');a.href=URL.createObjectURL(b);a.download=mime==='video/mp4'?'video.mp4':'video.webm';a.click()};recorder.start();recBtn.disabled=true;stopBtn.disabled=false};
 stopBtn.onclick=()=>{recorder.stop();recBtn.disabled=false;stopBtn.disabled=true};
