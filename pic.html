@@ -3,7 +3,7 @@
 <head>
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
-<title>Camera Enhancer | EREX-TECHNOLOGIES</title>
+<title>Video Enhancer | EREX-TECHNOLOGIES</title>
 <style>
   body {
     margin: 0;
@@ -67,10 +67,10 @@
 </head>
 <body>
 
-<h1>Camera Enhancer</h1>
+<h1>Video Enhancer</h1>
 
 <div class="video-container">
-  <video id="video" autoplay playsinline></video>
+  <video id="video" autoplay playsinline muted></video>
 </div>
 
 <div class="controls">
@@ -94,41 +94,76 @@
     </select>
   </label>
   <button id="toggleCamera">Toggle Camera</button>
-  <button id="snap">Snap Photo</button>
+  <button id="start">Start Recording</button>
+  <button id="stop" disabled>Stop & Download</button>
 </div>
-
-<canvas id="canvas" style="display:none;"></canvas>
 
 <script>
 let video = document.getElementById('video');
-let canvas = document.getElementById('canvas');
 let brightness = document.getElementById('brightness');
 let contrast = document.getElementById('contrast');
 let saturation = document.getElementById('saturation');
 let zoom = document.getElementById('zoom');
-let snap = document.getElementById('snap');
-let aspect = document.getElementById('aspect');
+let startBtn = document.getElementById('start');
+let stopBtn = document.getElementById('stop');
 let toggleCamera = document.getElementById('toggleCamera');
+let aspect = document.getElementById('aspect');
 
 let currentStream;
 let useFrontCamera = true;
+let mediaRecorder;
+let recordedChunks = [];
 
+// Start camera
 async function startCamera() {
-  if (currentStream) {
-    currentStream.getTracks().forEach(track => track.stop());
-  }
+  if (currentStream) currentStream.getTracks().forEach(track => track.stop());
   const constraints = {
     video: {
-      facingMode: useFrontCamera ? "user" : "environment",
+      facingMode: useFrontCamera ? 'user' : 'environment',
       width: { ideal: 1280 },
       height: { ideal: 720 }
     },
-    audio: false
+    audio: true
   };
   try {
     currentStream = await navigator.mediaDevices.getUserMedia(constraints);
     video.srcObject = currentStream;
-  } catch (err) {
+
+    // Setup MediaRecorder
+    mediaRecorder = new MediaRecorder(currentStream);
+    mediaRecorder.ondataavailable = e => { if(e.data.size>0) recordedChunks.push(e.data); };
+    mediaRecorder.onstop = () => {
+      const ar = eval(aspect.value);
+      // Create canvas to apply filters and aspect ratio
+      const canvas = document.createElement('canvas');
+      const ctx = canvas.getContext('2d');
+
+      canvas.width = video.videoWidth;
+      canvas.height = video.videoWidth / ar;
+
+      // Center crop for aspect ratio
+      let sx = 0, sy = 0, sWidth = video.videoWidth, sHeight = video.videoHeight;
+      if (video.videoWidth / video.videoHeight > ar) {
+        sWidth = video.videoHeight * ar;
+        sx = (video.videoWidth - sWidth) / 2;
+      } else {
+        sHeight = video.videoWidth / ar;
+        sy = (video.videoHeight - sHeight) / 2;
+      }
+
+      ctx.filter = video.style.filter;
+      ctx.drawImage(video, sx, sy, sWidth, sHeight, 0, 0, canvas.width, canvas.height);
+
+      // Convert recorded video chunks to blob
+      const blob = new Blob(recordedChunks, { type: 'video/webm' });
+      const url = URL.createObjectURL(blob);
+      const a = document.createElement('a');
+      a.href = url;
+      a.download = 'video.webm';
+      a.click();
+      recordedChunks = [];
+    };
+  } catch(err) {
     alert('Camera access denied or not supported: ' + err);
   }
 }
@@ -143,42 +178,27 @@ contrast.addEventListener('input', updateFilters);
 saturation.addEventListener('input', updateFilters);
 zoom.addEventListener('input', updateFilters);
 
-// Snap photo with aspect ratio
-snap.addEventListener('click', () => {
-  let ar = eval(aspect.value);
-  canvas.width = video.videoWidth;
-  canvas.height = video.videoWidth / ar;
-  const ctx = canvas.getContext('2d');
-  ctx.filter = video.style.filter;
-  
-  // Center crop to maintain aspect ratio
-  let sx = 0;
-  let sy = 0;
-  let sWidth = video.videoWidth;
-  let sHeight = video.videoHeight;
-  if (video.videoWidth / video.videoHeight > ar) {
-    sWidth = video.videoHeight * ar;
-    sx = (video.videoWidth - sWidth) / 2;
-  } else {
-    sHeight = video.videoWidth / ar;
-    sy = (video.videoHeight - sHeight) / 2;
-  }
-
-  ctx.drawImage(video, sx, sy, sWidth, sHeight, 0, 0, canvas.width, canvas.height);
-
-  const link = document.createElement('a');
-  link.download = 'photo.png';
-  link.href = canvas.toDataURL('image/png');
-  link.click();
-});
-
-// Toggle front/rear camera
+// Toggle camera
 toggleCamera.addEventListener('click', () => {
   useFrontCamera = !useFrontCamera;
   startCamera();
 });
 
-// Start camera initially
+// Recording controls
+startBtn.addEventListener('click', () => {
+  recordedChunks = [];
+  mediaRecorder.start();
+  startBtn.disabled = true;
+  stopBtn.disabled = false;
+});
+
+stopBtn.addEventListener('click', () => {
+  mediaRecorder.stop();
+  startBtn.disabled = false;
+  stopBtn.disabled = true;
+});
+
+// Initialize
 startCamera();
 </script>
 
