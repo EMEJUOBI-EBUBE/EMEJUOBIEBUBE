@@ -1,0 +1,142 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Video Recorder | EREX-TECHNOLOGIES</title>
+<style>
+  body {
+    margin: 0;
+    font-family: Arial, sans-serif;
+    background: #0d1b2a;
+    color: #fff;
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    text-align: center;
+  }
+  h1 {
+    margin-top: 1rem;
+    color: #00b4d8;
+  }
+  video {
+    border-radius: 15px;
+    box-shadow: 0 0 20px #00b4d8;
+    max-width: 90%;
+    margin-top: 1rem;
+  }
+  .controls {
+    margin-top: 1rem;
+    display: flex;
+    flex-wrap: wrap;
+    gap: 1rem;
+    justify-content: center;
+  }
+  .controls label {
+    display: flex;
+    flex-direction: column;
+    font-size: 0.9rem;
+    color: #fff;
+    margin: 0.5rem;
+  }
+  input[type=range] {
+    width: 120px;
+    margin-top: 0.3rem;
+  }
+  button {
+    padding: 0.5rem 1rem;
+    border-radius: 5px;
+    border: none;
+    background: #00b4d8;
+    color: #fff;
+    cursor: pointer;
+    font-weight: bold;
+    transition: background 0.3s;
+  }
+  button:hover { background: #0096c7; }
+</style>
+</head>
+<body>
+
+<h1>Video Recorder</h1>
+
+<video id="video" autoplay playsinline></video>
+
+<div class="controls">
+  <label>Brightness
+    <input type="range" id="brightness" min="50" max="150" value="100">
+  </label>
+  <label>Contrast
+    <input type="range" id="contrast" min="50" max="150" value="100">
+  </label>
+  <label>Saturation
+    <input type="range" id="saturation" min="0" max="200" value="100">
+  </label>
+  <label>Zoom
+    <input type="range" id="zoom" min="1" max="3" step="0.1" value="1">
+  </label>
+  <button id="start">Start Recording</button>
+  <button id="stop" disabled>Stop & Download</button>
+</div>
+
+<script>
+const video = document.getElementById('video');
+const brightness = document.getElementById('brightness');
+const contrast = document.getElementById('contrast');
+const saturation = document.getElementById('saturation');
+const zoom = document.getElementById('zoom');
+const startBtn = document.getElementById('start');
+const stopBtn = document.getElementById('stop');
+
+let mediaRecorder;
+let recordedChunks = [];
+
+// Access webcam
+navigator.mediaDevices.getUserMedia({ video: true, audio: true })
+.then(stream => {
+  video.srcObject = stream;
+
+  // Setup MediaRecorder
+  mediaRecorder = new MediaRecorder(stream);
+  mediaRecorder.ondataavailable = e => {
+    if (e.data.size > 0) recordedChunks.push(e.data);
+  };
+  mediaRecorder.onstop = () => {
+    const blob = new Blob(recordedChunks, { type: 'video/webm' });
+    const url = URL.createObjectURL(blob);
+    const a = document.createElement('a');
+    a.href = url;
+    a.download = 'video.webm';
+    a.click();
+    recordedChunks = [];
+  };
+})
+.catch(err => alert('Camera access denied or not supported: ' + err));
+
+// Update live filters
+function updateFilters() {
+  video.style.filter = `brightness(${brightness.value}%) contrast(${contrast.value}%) saturate(${saturation.value}%)`;
+  video.style.transform = `scale(${zoom.value})`;
+}
+brightness.addEventListener('input', updateFilters);
+contrast.addEventListener('input', updateFilters);
+saturation.addEventListener('input', updateFilters);
+zoom.addEventListener('input', updateFilters);
+
+// Recording controls
+startBtn.addEventListener('click', () => {
+  recordedChunks = [];
+  mediaRecorder.start();
+  startBtn.disabled = true;
+  stopBtn.disabled = false;
+});
+
+stopBtn.addEventListener('click', () => {
+  mediaRecorder.stop();
+  startBtn.disabled = false;
+  stopBtn.disabled = true;
+});
+</script>
+
+</body>
+</html>

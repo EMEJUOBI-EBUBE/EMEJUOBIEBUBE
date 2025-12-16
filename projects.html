@@ -1,0 +1,63 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
+  <title>Projects | EREX-TECHNOLOGIES</title>
+  <style>
+    body {margin:0;background:#0d1b2a;color:#fff;font-family:Arial,sans-serif;text-align:center;}
+    nav {display:flex;flex-direction:column;align-items:center;padding:1rem 2rem;background:#1b263b;}
+    nav h1 {font-size:1.5rem;color:#00b4d8;margin:0.5rem 0;}
+    nav ul {list-style:none;display:flex;justify-content:center;flex-wrap:wrap;padding:0;margin:0;}
+    nav ul li {margin:0 1rem;}
+    nav ul li a {text-decoration:none;color:#fff;transition:color 0.3s;}
+    nav ul li a:hover {color:#00b4d8;}
+    h2 {margin-top:2rem;color:#00b4d8;}
+    .projects-container {display:grid;grid-template-columns:repeat(auto-fit,minmax(300px,1fr));gap:1.5rem;padding:2rem;max-width:1200px;margin:auto;}
+    .project-card {background:#1b263b;border-radius:15px;padding:1rem;box-shadow:inset 0 0 40px whitesmoke,inset 10px 0 60px #f0f,inset -10px 0 60px #0ff,inset 10px 0 200px #f0f,inset -10px 0 200px #0ff,0 0 15px #fff,-5px 0 20px #f0f,5px 0 20px #0ff;transition:transform 0.3s;text-align:left;}
+    .project-card:hover {transform:scale(1.05);}
+    .project-image {width:100%;height:auto;border-radius:10px;margin-bottom:1rem;}
+    .project-info {margin-bottom:1rem;line-height:1.4rem;}
+    .project-info h3 {margin:0 0 0.5rem 0;}
+    .project-button {background:#00b4d8;border:none;color:#fff;padding:0.6rem 1.2rem;border-radius:5px;cursor:pointer;transition:background 0.3s;text-decoration:none;display:inline-block;}
+    .project-button:hover {background:#0096c7;}
+    @media(max-width:600px){nav ul li {margin:0 0.5rem;}}
+  </style>
+</head>
+<body>
+  <header>
+    <nav>
+      <h1>EREX-TECHNOLOGIES</h1>
+      <ul>
+        <li><a href="index.html">Home</a></li>
+        <li><a href="projects.html">Projects</a></li>
+      </ul>
+    </nav>
+  </header>
+
+  <h2>My Projects</h2>
+  <div class="projects-container">
+    <!-- Example Project Card 1 -->
+    <div class="project-card">
+      <img src="./image enhancer.jpg" alt="Project Thumbnail" class="project-image" />
+      <div class="project-info">
+        <h3>Picture Enhancer</h3>
+        <p>Enhance your live pictures with your camera</p>
+      </div>
+      <a href="./pic.html" target="_blank" class="project-button">View Project</a>
+    </div>
+
+    <!-- Example Project Card 2 -->
+    <div class="project-card">
+      <img src="./video enhancer.jpg" alt="Project Thumbnail" class="project-image" />
+      <div class="project-info">
+        <h3>Video</h3>
+        <p>Video like a camera.</p>
+      </div>
+      <a href="./vid.html" target="_blank" class="project-button">View Project</a>
+    </div>
+
+    <!-- Add more project cards similarly -->
+  </div>
+</body>
+</html>
