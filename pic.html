@@ -1,215 +1,156 @@
 <!DOCTYPE html>
 <html lang="en">
 <head>
-<meta charset="UTF-8" />
-<meta name="viewport" content="width=device-width, initial-scale=1.0" />
-<title>Picture Enhancer | EREX-TECHNOLOGIES</title>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width,initial-scale=1.0">
+<title>Picture Camera | EREX</title>
 <style>
-*{margin:0;padding:0;box-sizing:border-box;}
-body{
-  background:#0d1b2a;
-  font-family:Arial,sans-serif;
-  height:100vh;
-  overflow:hidden;
-  display:flex;
-  justify-content:center;
-  align-items:center;
-  color:#fff;
-}
-
-.app{
-  width:100%;
-  max-width:420px;
-  height:100vh;
-  background:#000;
-  display:flex;
-  flex-direction:column;
-}
-
-/* Camera preview */
-.preview{
-  flex:1;
-  position:relative;
-  overflow:hidden;
-}
-
-video{
-  width:100%;
-  height:100%;
-  object-fit:cover;
-}
-
-.aspect-frame{
-  position:absolute;
-  top:50%;
-  left:50%;
-  transform:translate(-50%,-50%);
-  border:2px dashed rgba(255,255,255,0.6);
-  pointer-events:none;
-}
-
-/* Top bar */
-.top-bar{
-  position:absolute;
-  top:10px;
-  left:50%;
-  transform:translateX(-50%);
-  background:rgba(0,0,0,0.5);
-  padding:6px 12px;
-  border-radius:20px;
-  display:flex;
-  gap:10px;
-}
-
-.top-bar select{
-  background:#1b263b;
-  color:#fff;
-  border:none;
-  padding:4px 6px;
-  border-radius:6px;
-}
-
-/* Bottom controls */
-.controls{
-  background:#0d1b2a;
-  padding:10px;
-  display:grid;
-  grid-template-columns:repeat(3,1fr);
-  gap:10px;
-}
-
-.control{
-  display:flex;
-  flex-direction:column;
-  font-size:0.7rem;
-}
-
-.control input{
-  width:100%;
-}
-
-.actions{
-  display:flex;
-  justify-content:space-between;
-  align-items:center;
-  margin-top:8px;
-}
-
-button{
-  background:#00b4d8;
-  border:none;
-  color:#fff;
-  padding:12px;
-  border-radius:50%;
-  font-size:1rem;
-  cursor:pointer;
-}
-
-.snap{
-  width:70px;
-  height:70px;
-  font-size:1.4rem;
-}
+*{margin:0;padding:0;box-sizing:border-box}
+body{background:#000;height:100vh;overflow:hidden;font-family:Arial,sans-serif;display:flex;justify-content:center;align-items:center}
+.app{width:100%;height:100%;max-width:480px;position:relative;touch-action:none}
+video,canvas{width:100%;height:100%;object-fit:cover}
+canvas{display:none}
+.frame{position:absolute;border:2px dashed rgba(255,255,255,.6);top:50%;left:50%;transform:translate(-50%,-50%);pointer-events:none}
+.grid{position:absolute;inset:0;pointer-events:none;display:none}
+.grid::before,.grid::after{content:"";position:absolute;background:rgba(255,255,255,.3)}
+.grid::before{left:33.33%;top:0;width:2px;height:100%}
+.grid::after{left:66.66%;top:0;width:2px;height:100%}
+.grid span{position:absolute;left:0;width:100%;height:2px;background:rgba(255,255,255,.3)}
+.grid span:nth-child(1){top:33.33%}
+.grid span:nth-child(2){top:66.66%}
+.focus-ring{position:absolute;width:80px;height:80px;border:2px solid #ffd166;border-radius:50%;pointer-events:none;opacity:0;animation:focus 1s ease}
+@keyframes focus{0%{transform:scale(1.3);opacity:1}100%{transform:scale(1);opacity:0}}
+.top{position:absolute;top:10px;left:50%;transform:translateX(-50%);display:flex;gap:6px;background:rgba(0,0,0,.6);padding:6px 10px;border-radius:20px;z-index:5}
+.bottom{position:absolute;bottom:calc(10px + env(safe-area-inset-bottom));left:50%;transform:translateX(-50%);display:flex;flex-direction:column;align-items:center;gap:8px;z-index:5}
+.controls{display:flex;gap:14px}
+.sliders,.filters{display:flex;gap:8px;background:rgba(0,0,0,.5);padding:6px;border-radius:10px;flex-wrap:wrap;justify-content:center}
+button,select{background:#00b4d8;border:none;color:#fff;padding:8px;border-radius:50%;cursor:pointer}
+select{border-radius:10px}
+input[type=range]{width:70px}
+.filter-btn{border-radius:10px;padding:6px 10px;background:#023e8a}
 </style>
 </head>
 <body>
-
 <div class="app">
-  <div class="preview">
-    <video id="video" autoplay playsinline></video>
-    <div class="aspect-frame" id="frame"></div>
+  <video id="video" autoplay muted playsinline></video>
+  <canvas id="canvas"></canvas>
+  <div class="frame" id="frame"></div>
+  <div class="grid" id="grid"><span></span><span></span></div>
 
-    <div class="top-bar">
-      <select id="aspect">
-        <optgroup label="Portrait">
-          <option value="3/4">3:4</option>
-          <option value="9/16">9:16</option>
-        </optgroup>
-        <optgroup label="Landscape">
-          <option value="4/3">4:3</option>
-          <option value="16/9" selected>16:9</option>
-        </optgroup>
-        <optgroup label="Square">
-          <option value="1">1:1</option>
-        </optgroup>
-      </select>
+  <div class="top">
+    <select id="ratio">
+      <optgroup label="Portrait">
+        <option value="9:16">9:16</option>
+        <option value="3:4">3:4</option>
+      </optgroup>
+      <optgroup label="Landscape">
+        <option value="16:9" selected>16:9</option>
+        <option value="4:3">4:3</option>
+      </optgroup>
+      <option value="1:1">1:1</option>
+    </select>
+    <button id="switch">🔄</button>
+    <button id="gridBtn">#</button>
+  </div>
+
+  <div class="bottom">
+    <div class="sliders">
+      <input type="range" id="zoom" min="1" max="3" step="0.01" value="1" title="Zoom">
+      <input type="range" id="brightness" min="50" max="150" value="100" title="Exposure">
+      <input type="range" id="contrast" min="50" max="150" value="100" title="Contrast">
+      <input type="range" id="saturation" min="0" max="200" value="100" title="Saturation">
+    </div>
+    <div class="filters" id="filters">
+      <button class="filter-btn" data-filter="none">Normal</button>
+      <button class="filter-btn" data-filter="grayscale(100%)">B&W</button>
+      <button class="filter-btn" data-filter="sepia(100%)">Vintage</button>
+      <button class="filter-btn" data-filter="contrast(120%) saturate(140%)">Cinematic</button>
+      <button class="filter-btn" data-filter="brightness(110%) saturate(160%)">Vivid</button>
+    </div>
+    <div class="controls">
+      <button id="snap">📸</button>
     </div>
   </div>
-
-  <div class="controls">
-    <div class="control">Zoom<input type="range" id="zoom" min="1" max="3" step="0.01" value="1"></div>
-    <div class="control">Brightness<input type="range" id="brightness" min="50" max="150" value="100"></div>
-    <div class="control">Contrast<input type="range" id="contrast" min="50" max="150" value="100"></div>
-    <div class="control">Saturation<input type="range" id="saturation" min="0" max="200" value="100"></div>
-  </div>
-
-  <div class="controls actions">
-    <button id="toggle">🔄</button>
-    <button class="snap" id="snap">📸</button>
-    <div></div>
-  </div>
 </div>
-
-<canvas id="canvas" style="display:none"></canvas>
-
 <script>
+/* ================= PICTURE CAMERA SCRIPT ================= */
 const video=document.getElementById('video');
 const canvas=document.getElementById('canvas');
 const frame=document.getElementById('frame');
-const zoom=document.getElementById('zoom');
+const grid=document.getElementById('grid');
+const ratioSelect=document.getElementById('ratio');
 const brightness=document.getElementById('brightness');
 const contrast=document.getElementById('contrast');
 const saturation=document.getElementById('saturation');
-const aspect=document.getElementById('aspect');
-const snap=document.getElementById('snap');
-const toggle=document.getElementById('toggle');
+const zoom=document.getElementById('zoom');
+const snapBtn=document.getElementById('snap');
+const switchBtn=document.getElementById('switch');
+const gridBtn=document.getElementById('gridBtn');
+const filterBtns=document.querySelectorAll('.filter-btn');
 
-let stream; let front=true;
+let stream=null;
+let front=true;
+let activeFilter='';
 
 async function startCamera(){
-  if(stream) stream.getTracks().forEach(t=>t.stop());
-  stream=await navigator.mediaDevices.getUserMedia({video:{facingMode:front?'user':'environment'}});
-  video.srcObject=stream;
+  try{
+    if(stream)stream.getTracks().forEach(t=>t.stop());
+    stream=await navigator.mediaDevices.getUserMedia({video:{facingMode:front?'user':'environment'}});
+    video.srcObject=stream;
+  }catch(e){alert('Camera error: '+e.message)}
 }
+startCamera();
 
-function updateFilters(){
-  video.style.filter=`brightness(${brightness.value}%) contrast(${contrast.value}%) saturate(${saturation.value}%)`;
-  video.style.transform=`scale(${zoom.value})`;
-}
-
-[zoom,brightness,contrast,saturation].forEach(i=>i.oninput=updateFilters);
-
-toggle.onclick=()=>{front=!front;startCamera();};
+switchBtn.onclick=()=>{front=!front;startCamera()};
 
 function updateFrame(){
-  const r=eval(aspect.value);
-  const box=video.getBoundingClientRect();
+  const [wR,hR]=ratioSelect.value.split(':').map(Number);
+  const r=wR/hR;
+  const b=video.getBoundingClientRect();
   let w,h;
-  if(box.width/box.height>r){h=box.height*0.85;w=h*r;}else{w=box.width*0.85;h=w/r;}
+  if(b.width/b.height>r){h=b.height*.9;w=h*r}else{w=b.width*.9;h=w/r}
   frame.style.width=w+'px';frame.style.height=h+'px';
 }
-
-aspect.onchange=updateFrame;
+ratioSelect.onchange=updateFrame;
 window.onresize=updateFrame;
 
-snap.onclick=()=>{
-  const r=eval(aspect.value);
-  const vw=video.videoWidth;
-  const vh=video.videoHeight;
-  canvas.width=vw;
-  canvas.height=vw/r;
+function updateFilters(){
+  video.style.filter=`brightness(${brightness.value}%) contrast(${contrast.value}%) saturate(${saturation.value}%) ${activeFilter}`;
+  video.style.transform=`scale(${zoom.value})`;
+}
+[brightness,contrast,saturation,zoom].forEach(i=>i.oninput=updateFilters);
+
+filterBtns.forEach(btn=>{
+  btn.onclick=()=>{
+    activeFilter=btn.dataset.filter==='none'?'':btn.dataset.filter;
+    updateFilters();
+  }
+});
+
+gridBtn.onclick=()=>grid.style.display=grid.style.display==='block'?'none':'block';
+
+video.addEventListener('click',e=>{
+  const ring=document.createElement('div');
+  ring.className='focus-ring';
+  ring.style.left=(e.clientX-40)+'px';
+  ring.style.top=(e.clientY-40)+'px';
+  document.body.appendChild(ring);
+  setTimeout(()=>ring.remove(),1000);
+});
+
+snapBtn.onclick=()=>{
+  canvas.width=video.videoWidth;
+  canvas.height=video.videoHeight;
   const ctx=canvas.getContext('2d');
   ctx.filter=video.style.filter;
-  let sx=0,sy=0,sw=vw,sh=vh;
-  if(vw/vh>r){sw=vh*r;sx=(vw-sw)/2;}else{sh=vw/r;sy=(vh-sh)/2;}
-  ctx.drawImage(video,sx,sy,sw,sh,0,0,canvas.width,canvas.height);
+  ctx.drawImage(video,0,0,canvas.width,canvas.height);
   const a=document.createElement('a');
   a.href=canvas.toDataURL('image/png');
   a.download='photo.png';
   a.click();
 };
 
-startCamera();updateFrame();
+updateFrame();
 </script>
 </body>
 </html>
