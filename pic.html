@@ -19,11 +19,21 @@
     margin-top: 1rem;
     color: #00b4d8;
   }
-  video, canvas {
+  .video-container {
+    overflow: hidden;
     border-radius: 15px;
     box-shadow: 0 0 20px #00b4d8;
-    max-width: 90%;
-    margin-top: 1rem;
+    width: 90%;
+    max-width: 640px;
+    background: #000;
+    position: relative;
+  }
+  video {
+    width: 100%;
+    height: 100%;
+    object-fit: cover;
+    transform-origin: center center;
+    display: block;
   }
   .controls {
     margin-top: 1rem;
@@ -39,8 +49,7 @@
     color: #fff;
     margin: 0.5rem;
   }
-  input[type=range], select {
-    width: 120px;
+  input[type=range], select, button {
     margin-top: 0.3rem;
   }
   button {
@@ -60,8 +69,9 @@
 
 <h1>Camera Enhancer</h1>
 
-<video id="video" autoplay playsinline></video>
-<canvas id="canvas" style="display:none;"></canvas>
+<div class="video-container">
+  <video id="video" autoplay playsinline></video>
+</div>
 
 <div class="controls">
   <label>Brightness
@@ -74,7 +84,7 @@
     <input type="range" id="saturation" min="0" max="200" value="100">
   </label>
   <label>Zoom
-    <input type="range" id="zoom" min="1" max="3" step="0.1" value="1">
+    <input type="range" id="zoom" min="1" max="3" step="0.01" value="1">
   </label>
   <label>Aspect Ratio
     <select id="aspect">
@@ -83,28 +93,47 @@
       <option value="16/9" selected>16:9</option>
     </select>
   </label>
+  <button id="toggleCamera">Toggle Camera</button>
   <button id="snap">Snap Photo</button>
 </div>
 
+<canvas id="canvas" style="display:none;"></canvas>
+
 <script>
-const video = document.getElementById('video');
-const canvas = document.getElementById('canvas');
-const brightness = document.getElementById('brightness');
-const contrast = document.getElementById('contrast');
-const saturation = document.getElementById('saturation');
-const zoom = document.getElementById('zoom');
-const snap = document.getElementById('snap');
-const aspect = document.getElementById('aspect');
+let video = document.getElementById('video');
+let canvas = document.getElementById('canvas');
+let brightness = document.getElementById('brightness');
+let contrast = document.getElementById('contrast');
+let saturation = document.getElementById('saturation');
+let zoom = document.getElementById('zoom');
+let snap = document.getElementById('snap');
+let aspect = document.getElementById('aspect');
+let toggleCamera = document.getElementById('toggleCamera');
 
-// Access webcam
-navigator.mediaDevices.getUserMedia({
-  video: { zoom: true, aspectRatio: 16/9 },
-  audio: false
-})
-.then(stream => { video.srcObject = stream; })
-.catch(err => alert('Camera access denied or not supported: ' + err));
+let currentStream;
+let useFrontCamera = true;
 
-// Update filters and zoom
+async function startCamera() {
+  if (currentStream) {
+    currentStream.getTracks().forEach(track => track.stop());
+  }
+  const constraints = {
+    video: {
+      facingMode: useFrontCamera ? "user" : "environment",
+      width: { ideal: 1280 },
+      height: { ideal: 720 }
+    },
+    audio: false
+  };
+  try {
+    currentStream = await navigator.mediaDevices.getUserMedia(constraints);
+    video.srcObject = currentStream;
+  } catch (err) {
+    alert('Camera access denied or not supported: ' + err);
+  }
+}
+
+// Filters and zoom
 function updateFilters() {
   video.style.filter = `brightness(${brightness.value}%) contrast(${contrast.value}%) saturate(${saturation.value}%)`;
   video.style.transform = `scale(${zoom.value})`;
@@ -114,19 +143,43 @@ contrast.addEventListener('input', updateFilters);
 saturation.addEventListener('input', updateFilters);
 zoom.addEventListener('input', updateFilters);
 
-// Snap photo with selected aspect ratio
+// Snap photo with aspect ratio
 snap.addEventListener('click', () => {
-  let ar = eval(aspect.value); // convert string like '16/9' to number
-  canvas.height = video.videoHeight;
-  canvas.width = canvas.height * ar;
+  let ar = eval(aspect.value);
+  canvas.width = video.videoWidth;
+  canvas.height = video.videoWidth / ar;
   const ctx = canvas.getContext('2d');
   ctx.filter = video.style.filter;
-  ctx.drawImage(video, 0, 0, canvas.width, canvas.height);
+  
+  // Center crop to maintain aspect ratio
+  let sx = 0;
+  let sy = 0;
+  let sWidth = video.videoWidth;
+  let sHeight = video.videoHeight;
+  if (video.videoWidth / video.videoHeight > ar) {
+    sWidth = video.videoHeight * ar;
+    sx = (video.videoWidth - sWidth) / 2;
+  } else {
+    sHeight = video.videoWidth / ar;
+    sy = (video.videoHeight - sHeight) / 2;
+  }
+
+  ctx.drawImage(video, sx, sy, sWidth, sHeight, 0, 0, canvas.width, canvas.height);
+
   const link = document.createElement('a');
   link.download = 'photo.png';
   link.href = canvas.toDataURL('image/png');
   link.click();
 });
+
+// Toggle front/rear camera
+toggleCamera.addEventListener('click', () => {
+  useFrontCamera = !useFrontCamera;
+  startCamera();
+});
+
+// Start camera initially
+startCamera();
 </script>
 
 </body>
